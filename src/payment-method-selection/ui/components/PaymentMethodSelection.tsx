@@ -37,7 +37,6 @@ export const PaymentMethodSelection = forwardRef<
     }
   };
 
-  // Expose methods to parent component via ref
   useImperativeHandle(ref, () => ({
     submitPaymentMethod: () => {
       handleSubmit(onSubmit)();
@@ -48,23 +47,19 @@ export const PaymentMethodSelection = forwardRef<
     <div className="payment-method-selection">
       <h2>Select Payment Method</h2>
 
-      {/* Loading state */}
       {(loading || paymentMethodsLoading) && (
         <div className="loading-indicator">Loading...</div>
       )}
 
-      {/* Error message */}
       {error && <div className="error-notification">{error}</div>}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Hidden field for payment method type */}
         <Controller
           name="type"
           control={control}
           render={({ field }) => <input type="hidden" {...field} />}
         />
 
-        {/* Payment method options */}
         <div className="payment-method-options">
           {paymentMethods &&
             paymentMethods.map((method: any) => (
@@ -86,7 +81,6 @@ export const PaymentMethodSelection = forwardRef<
             ))}
         </div>
 
-        {/* Payment method specific details */}
         {activePaymentMethodType && (
           <PaymentMethodDetails
             type={activePaymentMethodType}

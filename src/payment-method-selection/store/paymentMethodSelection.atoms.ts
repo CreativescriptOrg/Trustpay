@@ -9,7 +9,7 @@ export const selectedPaymentMethodAtom = atom<PaymentMethod | null>(null);
 // Atom to store the currently active payment method type
 export const activePaymentMethodTypeAtom = atom<string | null>(null);
 
-// Atom with query for fetching payment methods (using atomWithQuery instead of direct promise)
+// Atom with query for fetching payment methods
 export const paymentMethodsAtom = atomWithQuery(() => ({
   queryKey: ["paymentMethods"],
   queryFn: async () => {
