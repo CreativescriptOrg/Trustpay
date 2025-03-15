@@ -16,7 +16,6 @@ const PaymentMethodDetails: React.FC<PaymentMethodDetailsProps> = ({
   control,
   errors,
 }) => {
-  // Render fields based on payment method type
   switch (type) {
     case "CARD":
       return (

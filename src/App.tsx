@@ -6,9 +6,6 @@ import {
 } from "./payment-method-selection/types/paymentMethodSelection.types";
 import "./payment-method-selection/ui/components/styles.css";
 
-/**
- * Steps for the transaction flow
- */
 const steps = [
   { title: "Transaction Type" },
   { title: "Product Details" },
@@ -16,41 +13,23 @@ const steps = [
   { title: "Share Link" },
 ];
 
-/**
- * Main App component that implements the wizard pattern
- */
 const App: React.FC = () => {
-  // State for tracking current step
   const [currentStep, setCurrentStep] = useState(1);
-  const [direction, setDirection] = useState<"forward" | "backward">("forward");
-  const [paymentMethodData, setPaymentMethodData] =
-    useState<PaymentMethod | null>(null);
 
-  // Ref for the payment method selection component
   const paymentMethodSelectionRef = useRef<PaymentMethodSelectionRef>(null);
 
-  // Handle next step
   const handleNext = (data?: PaymentMethod) => {
-    if (data) {
-      setPaymentMethodData(data);
-    }
-    setDirection("forward");
     setCurrentStep((prevStep) => Math.min(prevStep + 1, steps.length));
   };
 
-  // Handle previous step
   const handleBack = () => {
-    setDirection("backward");
     setCurrentStep((prevStep) => Math.max(prevStep - 1, 0));
   };
 
-  // Submit current step
   const handleSubmit = () => {
-    // If on payment method step, trigger submission via ref
     if (currentStep === 1 && paymentMethodSelectionRef.current) {
       paymentMethodSelectionRef.current.submitPaymentMethod();
     } else {
-      // For demo purposes, just go to next step
       handleNext();
     }
   };
@@ -61,7 +40,6 @@ const App: React.FC = () => {
         <h1>TrustPay</h1>
       </header>
 
-      {/* Step Progress Indicator */}
       <div className="step-progress">
         {steps.map((step, index) => (
           <div
@@ -77,7 +55,6 @@ const App: React.FC = () => {
         ))}
       </div>
 
-      {/* Step Content */}
       <div className="step-content">
         {currentStep === 1 && (
           <Suspense
@@ -152,7 +129,6 @@ const App: React.FC = () => {
         )}
       </div>
 
-      {/* Bottom Action Bar */}
       <div className="bottom-action-bar">
         {currentStep > 1 && (
           <button className="secondary" onClick={handleBack}>
