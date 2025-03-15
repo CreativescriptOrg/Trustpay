@@ -1,159 +1,102 @@
-import React, {
-  forwardRef,
-  useImperativeHandle,
-  useState,
-  useEffect,
-} from "react";
-import { Form, Radio, Result, Skeleton, Toast } from "antd-mobile";
-import { ExclamationCircleOutline } from "antd-mobile-icons";
+import { forwardRef, useImperativeHandle } from "react";
+import { Controller } from "react-hook-form";
+import PaymentMethodDetails from "./PaymentMethodDetails";
 import { usePaymentMethodSelection } from "../../hooks/usePaymentMethodSelection";
-import { PaymentMethodDetails } from "./PaymentMethodDetails";
 import {
   PaymentMethod,
-  PaymentMethodType,
-} from "../../types/paymentMethodSelection.types";
+  PaymentMethodSelectionProps,
+  PaymentMethodSelectionRef,
+} from "././../../types/paymentMethodSelection.types";
 
-export interface PaymentMethodSelectionRef {
-  submitPaymentMethod: () => Promise<boolean>;
-}
+/**
+ * Payment Method Selection component
+ * Allows users to select and configure their payment method
+ */
+export const PaymentMethodSelection = forwardRef<
+  PaymentMethodSelectionRef,
+  PaymentMethodSelectionProps
+>(({ onNext }, ref) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    paymentMethods,
+    paymentMethodsLoading,
+    activePaymentMethodType,
+    selectPaymentMethodType,
+    submitPaymentMethod,
+    loading,
+    error,
+  } = usePaymentMethodSelection();
 
-interface PaymentMethodSelectionProps {
-  onNext: () => void;
-}
+  // Form submission handler
+  const onSubmit = async (data: PaymentMethod) => {
+    const success = await submitPaymentMethod(data);
+    if (success) {
+      onNext(data);
+    }
+  };
 
-export const PaymentMethodSelection = forwardRef;
-PaymentMethodSelectionRef,
-  PaymentMethodSelectionProps >
-    (({ onNext }, ref) => {
-      const {
-        selectedType,
-        paymentMethods,
-        isLoadingPaymentMethods,
-        submissionStatus,
-        submissionError,
-        isSubmitting,
-        handleSelectPaymentMethod,
-        handleSubmit,
-        form,
-      } = usePaymentMethodSelection();
+  // Expose methods to parent component via ref
+  useImperativeHandle(ref, () => ({
+    submitPaymentMethod: () => {
+      handleSubmit(onSubmit)();
+    },
+  }));
 
-      const [error, setError] = useState<string | null>(null);
+  return (
+    <div className="payment-method-selection">
+      <h2>Select Payment Method</h2>
 
-      // Expose methods to parent component via ref
-      useImperativeHandle(ref, () => ({
-        submitPaymentMethod: async () => {
-          try {
-            setError(null);
-            const success = await handleSubmit();
-            if (success) {
-              onNext();
-              return true;
-            }
-            return false;
-          } catch (err: any) {
-            setError(err.message || "Failed to submit payment method");
-            return false;
-          }
-        },
-      }));
+      {/* Loading state */}
+      {(loading || paymentMethodsLoading) && (
+        <div className="loading-indicator">Loading...</div>
+      )}
 
-      // Show toast notification when submission status changes
-      useEffect(() => {
-        if (submissionStatus === "error" && submissionError) {
-          Toast.show({
-            icon: <ExclamationCircleOutline />,
-            content:
-              submissionError.message || "Failed to submit payment method",
-          });
-        }
-      }, [submissionStatus, submissionError]);
+      {/* Error message */}
+      {error && <div className="error-notification">{error}</div>}
 
-      // Handle payment method selection
-      const onPaymentMethodChange = (value: PaymentMethodType) => {
-        handleSelectPaymentMethod(value);
-      };
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* Hidden field for payment method type */}
+        <Controller
+          name="type"
+          control={control}
+          render={({ field }) => <input type="hidden" {...field} />}
+        />
 
-      // Show loading skeleton while fetching payment methods
-      if (isLoadingPaymentMethods) {
-        return (
-          <div className="p-4">
-            <Skeleton animated className="w-full h-16 mb-4" />
-            <Skeleton animated className="w-full h-40" />
-          </div>
-        );
-      }
-
-      // Show error message if payment methods couldn't be loaded
-      if (!paymentMethods || paymentMethods.length === 0) {
-        return (
-          <Result
-            status="error"
-            title="Failed to load payment methods"
-            description="Please try again later"
-          />
-        );
-      }
-
-      return (
-        <div className="payment-method-selection p-4">
-          <Form
-            layout="vertical"
-            form={form.control.form}
-            requiredMarkStyle="none"
-          >
-            <Form.Header>Select a payment method</Form.Header>
-
-            {/* Payment Method Selection */}
-            <div className="payment-method-options mb-4">
-              <Radio.Group
-                value={selectedType || undefined}
-                onChange={(value) =>
-                  onPaymentMethodChange(value as PaymentMethodType)
-                }
+        {/* Payment method options */}
+        <div className="payment-method-options">
+          {paymentMethods &&
+            paymentMethods.map((method: any) => (
+              <div
+                key={method.id}
+                className={`payment-method-option ${
+                  activePaymentMethodType === method.id ? "active" : ""
+                }`}
+                onClick={() => selectPaymentMethodType(method.id)}
               >
-                <div className="grid grid-cols-1 gap-3">
-                  {paymentMethods.map((method) => (
-                    <div
-                      key={method.id}
-                      className={`
-                    p-3 border rounded-lg flex items-center
-                    ${
-                      selectedType === method.id
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-200"
-                    }
-                  `}
-                    >
-                      <Radio value={method.id} className="pr-3" />
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 mr-3 flex items-center justify-center bg-gray-100 rounded-full">
-                          {/* Icon would be an actual image in a real implementation */}
-                          <span className="text-xl">{method.icon}</span>
-                        </div>
-                        <span className="font-medium">{method.name}</span>
-                      </div>
-                    </div>
-                  ))}
+                <div className="payment-method-icon">
+                  {/* Replace with actual icons later */}
+                  {method.icon === "card-icon" && <span>💳</span>}
+                  {method.icon === "bank-icon" && <span>🏦</span>}
+                  {method.icon === "mobile-icon" && <span>📱</span>}
                 </div>
-              </Radio.Group>
-            </div>
-
-            {/* Dynamic Payment Method Details */}
-            {selectedType && (
-              <div className="payment-method-details mt-6 border-t pt-4">
-                <Form.Header>Enter payment details</Form.Header>
-                <PaymentMethodDetails type={selectedType} />
+                <div className="payment-method-name">{method.name}</div>
               </div>
-            )}
-
-            {/* Error Display */}
-            {error && (
-              <div className="mt-4 p-3 bg-red-50 text-red-500 rounded-lg">
-                <ExclamationCircleOutline className="mr-2" />
-                {error}
-              </div>
-            )}
-          </Form>
+            ))}
         </div>
-      );
-    });
+
+        {/* Payment method specific details */}
+        {activePaymentMethodType && (
+          <PaymentMethodDetails
+            type={activePaymentMethodType}
+            control={control}
+            errors={errors}
+          />
+        )}
+      </form>
+    </div>
+  );
+});
+
+export default PaymentMethodSelection;

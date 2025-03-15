@@ -1,240 +1,263 @@
 import React from "react";
-import { Form, Input, Radio } from "antd-mobile";
 import { Controller } from "react-hook-form";
-import { PaymentMethodType } from "../../types/paymentMethodSelection.types";
-import { usePaymentMethodSelection } from "../../hooks/usePaymentMethodSelection";
+import "./styles.css";
 
 interface PaymentMethodDetailsProps {
-  type: PaymentMethodType;
+  type: string;
+  control: any;
+  errors: any;
 }
 
 /**
- * Component that renders the appropriate form fields based on the selected payment method
+ * Component that renders form fields specific to the selected payment method
  */
-export const PaymentMethodDetails: React.FC<PaymentMethodDetailsProps> = ({
+const PaymentMethodDetails: React.FC<PaymentMethodDetailsProps> = ({
   type,
+  control,
+  errors,
 }) => {
-  const { form } = usePaymentMethodSelection();
-  const {
-    control,
-    formState: { errors },
-  } = form;
-
-  // Render card payment form fields
-  const renderCardFields = () => (
-    <>
-      <Form.Item
-        label="Card Number"
-        extra={errors.cardNumber?.message}
-        className={errors.cardNumber ? "adm-form-item-has-error" : ""}
-      >
-        <Controller
-          name="cardNumber"
-          control={control}
-          render={({ field }) => (
-            <Input
-              {...field}
-              placeholder="Enter 16-digit card number"
-              maxLength={16}
-              className="w-full"
-            />
-          )}
-        />
-      </Form.Item>
-
-      <Form.Item
-        label="Cardholder Name"
-        extra={errors.cardholderName?.message}
-        className={errors.cardholderName ? "adm-form-item-has-error" : ""}
-      >
-        <Controller
-          name="cardholderName"
-          control={control}
-          render={({ field }) => (
-            <Input
-              {...field}
-              placeholder="Enter name as it appears on card"
-              className="w-full"
-            />
-          )}
-        />
-      </Form.Item>
-
-      <div className="flex space-x-4">
-        <Form.Item
-          label="Expiry Date"
-          extra={errors.expiryDate?.message}
-          className={`w-1/2 ${
-            errors.expiryDate ? "adm-form-item-has-error" : ""
-          }`}
-        >
-          <Controller
-            name="expiryDate"
-            control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                placeholder="MM/YY"
-                maxLength={5}
-                className="w-full"
-              />
-            )}
-          />
-        </Form.Item>
-
-        <Form.Item
-          label="CVV"
-          extra={errors.cvv?.message}
-          className={`w-1/2 ${errors.cvv ? "adm-form-item-has-error" : ""}`}
-        >
-          <Controller
-            name="cvv"
-            control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                placeholder="3-4 digits"
-                maxLength={4}
-                type="password"
-                className="w-full"
-              />
-            )}
-          />
-        </Form.Item>
-      </div>
-    </>
-  );
-
-  // Render bank transfer form fields
-  const renderBankTransferFields = () => (
-    <>
-      <Form.Item
-        label="Bank Name"
-        extra={errors.bankName?.message}
-        className={errors.bankName ? "adm-form-item-has-error" : ""}
-      >
-        <Controller
-          name="bankName"
-          control={control}
-          render={({ field }) => (
-            <Input
-              {...field}
-              placeholder="Enter bank name"
-              className="w-full"
-            />
-          )}
-        />
-      </Form.Item>
-
-      <Form.Item
-        label="Account Holder Name"
-        extra={errors.accountHolderName?.message}
-        className={errors.accountHolderName ? "adm-form-item-has-error" : ""}
-      >
-        <Controller
-          name="accountHolderName"
-          control={control}
-          render={({ field }) => (
-            <Input
-              {...field}
-              placeholder="Enter account holder name"
-              className="w-full"
-            />
-          )}
-        />
-      </Form.Item>
-
-      <Form.Item
-        label="Account Number"
-        extra={errors.accountNumber?.message}
-        className={errors.accountNumber ? "adm-form-item-has-error" : ""}
-      >
-        <Controller
-          name="accountNumber"
-          control={control}
-          render={({ field }) => (
-            <Input
-              {...field}
-              placeholder="Enter account number"
-              className="w-full"
-            />
-          )}
-        />
-      </Form.Item>
-
-      <Form.Item
-        label="Routing Number (Optional)"
-        extra={errors.routingNumber?.message}
-        className={errors.routingNumber ? "adm-form-item-has-error" : ""}
-      >
-        <Controller
-          name="routingNumber"
-          control={control}
-          render={({ field }) => (
-            <Input
-              {...field}
-              placeholder="Enter routing number"
-              className="w-full"
-            />
-          )}
-        />
-      </Form.Item>
-    </>
-  );
-
-  // Render mobile money form fields
-  const renderMobileMoneyFields = () => (
-    <>
-      <Form.Item
-        label="Mobile Provider"
-        extra={errors.provider?.message}
-        className={errors.provider ? "adm-form-item-has-error" : ""}
-      >
-        <Controller
-          name="provider"
-          control={control}
-          render={({ field }) => (
-            <Radio.Group {...field} className="w-full">
-              <div className="flex flex-col space-y-2">
-                <Radio value="MTN">MTN Mobile Money</Radio>
-                <Radio value="Vodafone">Vodafone Cash</Radio>
-                <Radio value="Airtel">Airtel Money</Radio>
-                <Radio value="Other">Other</Radio>
-              </div>
-            </Radio.Group>
-          )}
-        />
-      </Form.Item>
-
-      <Form.Item
-        label="Phone Number"
-        extra={errors.phoneNumber?.message}
-        className={errors.phoneNumber ? "adm-form-item-has-error" : ""}
-      >
-        <Controller
-          name="phoneNumber"
-          control={control}
-          render={({ field }) => (
-            <Input
-              {...field}
-              placeholder="Enter phone number with country code"
-              className="w-full"
-            />
-          )}
-        />
-      </Form.Item>
-    </>
-  );
-
-  // Render the appropriate fields based on payment method type
+  // Render fields based on payment method type
   switch (type) {
     case "CARD":
-      return renderCardFields();
+      return (
+        <div className="payment-method-details">
+          <div className="form-group">
+            <label htmlFor="cardNumber">Card Number</label>
+            <Controller
+              name="cardNumber"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="cardNumber"
+                  type="text"
+                  placeholder="1234 5678 9012 3456"
+                  className={errors.cardNumber ? "error" : ""}
+                  {...field}
+                />
+              )}
+            />
+            {errors.cardNumber && (
+              <span className="error-message">{errors.cardNumber.message}</span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="cardholderName">Cardholder Name</label>
+            <Controller
+              name="cardholderName"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="cardholderName"
+                  type="text"
+                  placeholder="John Smith"
+                  className={errors.cardholderName ? "error" : ""}
+                  {...field}
+                />
+              )}
+            />
+            {errors.cardholderName && (
+              <span className="error-message">
+                {errors.cardholderName.message}
+              </span>
+            )}
+          </div>
+
+          <div className="form-row">
+            <div className="form-group half">
+              <label htmlFor="expiryDate">Expiry Date (MM/YY)</label>
+              <Controller
+                name="expiryDate"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    id="expiryDate"
+                    type="text"
+                    placeholder="MM/YY"
+                    className={errors.expiryDate ? "error" : ""}
+                    {...field}
+                  />
+                )}
+              />
+              {errors.expiryDate && (
+                <span className="error-message">
+                  {errors.expiryDate.message}
+                </span>
+              )}
+            </div>
+
+            <div className="form-group half">
+              <label htmlFor="cvv">CVV</label>
+              <Controller
+                name="cvv"
+                control={control}
+                render={({ field }) => (
+                  <input
+                    id="cvv"
+                    type="text"
+                    placeholder="123"
+                    className={errors.cvv ? "error" : ""}
+                    {...field}
+                  />
+                )}
+              />
+              {errors.cvv && (
+                <span className="error-message">{errors.cvv.message}</span>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+
     case "BANK_TRANSFER":
-      return renderBankTransferFields();
+      return (
+        <div className="payment-method-details">
+          <div className="form-group">
+            <label htmlFor="accountNumber">Account Number</label>
+            <Controller
+              name="accountNumber"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="accountNumber"
+                  type="text"
+                  placeholder="12345678"
+                  className={errors.accountNumber ? "error" : ""}
+                  {...field}
+                />
+              )}
+            />
+            {errors.accountNumber && (
+              <span className="error-message">
+                {errors.accountNumber.message}
+              </span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="routingNumber">Routing Number</label>
+            <Controller
+              name="routingNumber"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="routingNumber"
+                  type="text"
+                  placeholder="123456789"
+                  className={errors.routingNumber ? "error" : ""}
+                  {...field}
+                />
+              )}
+            />
+            {errors.routingNumber && (
+              <span className="error-message">
+                {errors.routingNumber.message}
+              </span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="accountName">Account Holder Name</label>
+            <Controller
+              name="accountName"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="accountName"
+                  type="text"
+                  placeholder="John Smith"
+                  className={errors.accountName ? "error" : ""}
+                  {...field}
+                />
+              )}
+            />
+            {errors.accountName && (
+              <span className="error-message">
+                {errors.accountName.message}
+              </span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="bankName">Bank Name</label>
+            <Controller
+              name="bankName"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="bankName"
+                  type="text"
+                  placeholder="Bank of America"
+                  className={errors.bankName ? "error" : ""}
+                  {...field}
+                />
+              )}
+            />
+            {errors.bankName && (
+              <span className="error-message">{errors.bankName.message}</span>
+            )}
+          </div>
+        </div>
+      );
+
     case "MOBILE_MONEY":
-      return renderMobileMoneyFields();
+      return (
+        <div className="payment-method-details">
+          <div className="form-group">
+            <label htmlFor="phoneNumber">Phone Number</label>
+            <Controller
+              name="phoneNumber"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="phoneNumber"
+                  type="text"
+                  placeholder="+1234567890"
+                  className={errors.phoneNumber ? "error" : ""}
+                  {...field}
+                />
+              )}
+            />
+            {errors.phoneNumber && (
+              <span className="error-message">
+                {errors.phoneNumber.message}
+              </span>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="provider">Provider</label>
+            <Controller
+              name="provider"
+              control={control}
+              render={({ field }) => (
+                <select
+                  id="provider"
+                  className={errors.provider ? "error" : ""}
+                  {...field}
+                >
+                  <option value="">Select a provider</option>
+                  <option value="M-Pesa">M-Pesa</option>
+                  <option value="MTN Mobile Money">MTN Mobile Money</option>
+                  <option value="Orange Money">Orange Money</option>
+                  <option value="Airtel Money">Airtel Money</option>
+                </select>
+              )}
+            />
+            {errors.provider && (
+              <span className="error-message">{errors.provider.message}</span>
+            )}
+          </div>
+        </div>
+      );
+
     default:
-      return <p>Please select a payment method</p>;
+      return (
+        <div className="payment-method-details">
+          <p>Please select a payment method to continue</p>
+        </div>
+      );
   }
 };
+
+export default PaymentMethodDetails;
